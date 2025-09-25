@@ -7,7 +7,8 @@
 
 ** Modify wording
 * Update title popup open app dialog (modified Installomator script) (installomator)
-* Remove email contact info (modified code ln 2025)
+* Remove email contact info and reordered (modified code ln 2025)
+* Modified help formatting (modified code ln 375)
 * Bolden info key and add :
 
 * TODO settings

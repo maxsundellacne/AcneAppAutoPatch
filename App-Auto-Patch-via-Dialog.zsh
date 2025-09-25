@@ -374,15 +374,15 @@ set_display_strings_language() {
     
     #### Help Message
     display_string_help_message_intro="If you need assistance, please contact"
-    display_string_help_message_telephone="Telephone"
-    display_string_help_message_email="Email"
-    display_string_help_message_help_website="Help Website"
-    display_string_help_message_computer_info="Computer Information"
-    display_string_help_message_operating_system="Operating System"
-    display_string_help_message_serial="Serial Number"
-    display_string_help_message_dialog="Dialog"
-    display_string_help_message_started="Started"
-    display_string_help_message_script_version="Script Version"
+    display_string_help_message_telephone="**Telephone:**"
+    display_string_help_message_email="**Email:**"
+    display_string_help_message_help_website="**Service Portal:**"
+    display_string_help_message_computer_info="**Computer Information:**"
+    display_string_help_message_operating_system="**Operating System:**"
+    display_string_help_message_serial="**Serial Number:**"
+    display_string_help_message_started="**Started:**"
+    display_string_help_message_dialog="**swiftDialog Version:**"
+    display_string_help_message_script_version="**AAP Version:**"
     
     # Count the number of dictionaries in dialogElements
     numElements=$(/usr/libexec/PlistBuddy -c "Print :userInterface:dialogElements" "$appAutoPatchManagedPLIST.plist" | grep -c "Dict")
