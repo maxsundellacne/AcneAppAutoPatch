@@ -15,6 +15,13 @@
 
 ####################################################################################################
 #
+# Acne Studios Modifications
+# Ln 2010, modified dialog icons to use Acne Studios branding icon 
+#
+####################################################################################################
+
+####################################################################################################
+#
 # Global Variables
 #
 ####################################################################################################
@@ -1999,42 +2006,10 @@ workflow_startup() {
         icon="SF=desktopcomputer.and.arrow.down,weight=regular,colour1=gray,colour2=red"
     fi
 
-    # Create `overlayicon` from Self Service's custom icon (thanks, @meschwartz!)
+    # MODIFIED to always use Acne Studios branding icon if available
     if [[ "$useOverlayIcon" == "TRUE" ]]; then
-        if defaults read /Library/Preferences/com.jamfsoftware.jamf self_service_app_path &> /dev/null; then
-            # Use Self Service icon for overlay if found
-            xxd -p -s 260 "$(defaults read /Library/Preferences/com.jamfsoftware.jamf self_service_app_path)"/Icon$'\r'/..namedfork/rsrc | xxd -r -p > /var/tmp/overlayicon.icns
-            overlayicon="/var/tmp/overlayicon.icns"
-        # Computer is not Jamf enrolled (or can't use Self Service logo), get a different overlay icon
-        elif [[ -e "/Library/Application Support/JAMF/Jamf.app" ]]; then
-            overlayicon="/Library/Application Support/JAMF/Jamf.app/Contents/Resources/AppIcon.icns"
-        elif [[ -e "/Applications/Self-Service.app" ]]; then
-            overlayicon="/Applications/Self-Service.app/Contents/Resources/AppIcon.icns"
-        elif [[ -e "/Applications/Manager.app" ]]; then
-            overlayicon="/Applications/Manager.app/Contents/Resources/AppIcon.icns"
-        elif [[ -e "/Library/Addigy/macmanage/MacManage.app" ]]; then
-            overlayicon="/Library/Addigy/macmanage/MacManage.app/Contents/Resources/atom.icns"
-        elif [[ "$(profiles show | grep -A4 "Management Profile" | sed -n -e 's/^.*profileIdentifier: //p')" == "Microsoft.Profiles.MDM" ]]; then
-            # Managed by Intune
-            if [[ -e "/Library/Intune/Microsoft Intune Agent.app" ]]; then
-                overlayicon="/Library/Intune/Microsoft Intune Agent.app/Contents/Resources/AppIcon.icns"
-            elif [[ -e "/Applications/Company Portal.app" ]]; then
-            # Added for cases when the Intune Agent is not yet present
-                overlayicon="/Applications/Company Portal.app/Contents/Resources/AppIcon.icns"
-            fi
-        elif [[ -e "/Applications/Workspace ONE Intelligent Hub.app" ]]; then
-            overlayicon="/Applications/Workspace ONE Intelligent Hub.app/Contents/Resources/AppIcon.icns"
-        elif [[ -e "/Applications/Kandji Self Service.app" ]]; then
-            overlayicon="/Applications/Kandji Self Service.app/Contents/Resources/AppIcon.icns"
-        elif [[ -e "/usr/local/sbin/FileWave.app" ]]; then
-            overlayicon="/usr/local/sbin/FileWave.app/Contents/Resources/fwGUI.app/Contents/Resources/kiosk.icns"
-        elif [[ -e "/System/Applications/App Store.app" || -e "/Applications/App Store.app" ]]; then
-            if [[ $(sw_vers -buildVersion) > "19" ]]; then
-                overlayicon="/System/Applications/App Store.app/Contents/Resources/AppIcon.icns"
-            else
-                overlayicon="/Applications/App Store.app/Contents/Resources/AppIcon.icns"
-            fi
-        fi
+        # Always use Acne Studios branding icon
+        overlayicon="/Library/Management/AcneStudiosBranding/AcneLogoSquircle.icns"
     else
         overlayicon=""
     fi
