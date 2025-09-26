@@ -341,7 +341,7 @@ set_display_strings_language() {
     display_string_deferral_infobox3="deferrals remaining\n"
     display_string_deferral_message_01="You can **Defer** the updates or **Continue** to close the applications and apply updates.  \n\n"
     display_string_deferral_message_02="application(s) that require updates:"
-    display_string_deferral_unlimited="No deadline date and unlimited deferrals\n"
+    display_string_deferral_unlimited=""
     
     #### Language for the Deferral Dialog with NO deferrals remaining
     display_string_deferraldeadline_button1="Continue"

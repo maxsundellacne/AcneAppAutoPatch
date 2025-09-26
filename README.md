@@ -3,9 +3,10 @@
 ### Modifications Done
 
 - **Overlay Logo**  
-  Modified to Acne Studios Face Logo (line 2010).
+  Modified to Acne Studios Face Logo (ln 2010).
 
-- **Help Info Box**  
-  - Removed email contact info (line 2025).  
-  - Reordered key–value pairs (line 2025).  
-  - Boldened keys for better readability (line 375).
+- **Text Modifications**
+  - Removed unlimited_defferal info (ln 344)  
+  - Removed email contact info (ln 2025).  
+  - Reordered key–value pairs (ln 2025).  
+  - Boldened keys for better readability (ln 375).
