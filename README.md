@@ -2,8 +2,8 @@
 
 ### Modifications Done
 
-- **Overlay Logo**  
-  - Modified to Acne Studios Face Logo (ln 2010)
+- **Logo Modificatons**  
+  - Modified overlayLogo to be Acne Studios Face Logo (ln 2010)
 
 - **Text Modifications**
   - Removed unlimited_defferal info (ln 344)
