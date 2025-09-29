@@ -8,4 +8,4 @@
 - **Text Modifications**
   - Removed email contact info (line 2025)
   - Reordered key–value pairs (line 2025)
-  - Boldened keys for better readability (line 375)
+  - Boldened keys (line 375)
