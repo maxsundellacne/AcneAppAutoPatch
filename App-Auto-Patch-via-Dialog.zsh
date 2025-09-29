@@ -23,8 +23,8 @@
 # Script Version and Variables
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-scriptVersion="3.3.0-acne1"
-scriptDate="2025/08/21"
+scriptVersion="3.3.0-acne3"
+scriptDate="2025/09/29"
 scriptFunctionalName="App Auto-Patch"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
