@@ -3774,9 +3774,13 @@ webHookMessage() {
                     "fields": [
                         {
                             "type": "mrkdwn",
-                            "text": ">*Serial Number:*\n>'"$serialNumber"'"
+                            "text": ">*Hostname:*\n>'"$computerName"'"
                         },
-                                {
+                        {
+                            "type": "mrkdwn",
+                            "text": ">*OS Version:*\n>'"$osVersion"'"
+                        },
+                        {
                             "type": "mrkdwn",
                             "text": ">*Model:*\n>'"$modelName"'"
                         },
@@ -3786,7 +3790,7 @@ webHookMessage() {
                         },
                         {
                             "type": "mrkdwn",
-                            "text": ">*Updates:*\n>'"$formatted_result"'"
+                            "text": ">*Label(s):*\n>'"$formatted_result"'"
                         },
                         {
                             "type": "mrkdwn",
