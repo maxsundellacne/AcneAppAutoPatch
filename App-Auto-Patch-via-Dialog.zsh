@@ -3705,7 +3705,7 @@ appsUpToDate(){
     # Extract the App up to date info from the AAP log
     if [[ $errorsCount -le 0 ]] && [[ ! -n $appsUpToDate ]]; then
         log_info "SUCCESS: Applications updates were installed with no errors"
-        webhookStatus="Success: Apps updated (S/N ${serialNumber})"
+        webhookStatus="Success: App(s) updated (S/N ${serialNumber})"
         formatted_result=$(echo "$queuedLabelsArray")
         formatted_error_result="None"
         errorCount="0"
@@ -3717,7 +3717,7 @@ appsUpToDate(){
             check_and_echo_errors
         else
             log_info "SUCCESS: Applications were all up to date, nothing to install"
-            webhookStatus="Success: Apps already up-to-date (S/N ${serialNumber})"
+            webhookStatus="Success: App(s) already up-to-date (S/N ${serialNumber})"
             formatted_result="None"
             formatted_error_result="None"
             errorCount="0"
