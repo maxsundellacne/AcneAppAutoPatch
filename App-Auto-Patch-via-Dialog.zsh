@@ -23,8 +23,8 @@
 # Script Version and Variables
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-scriptVersion="3.3.0-acne3"
-scriptDate="2025/09/29"
+scriptVersion="3.3.0-acne4"
+scriptDate="2025/10/02"
 scriptFunctionalName="App Auto-Patch"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -3726,7 +3726,7 @@ appsUpToDate(){
 }
 
 webHookMessage() {
-    
+
     if [[ $webhook_url_slack_option == "" ]]; then
         log_info "No slack URL configured"
     else
@@ -3755,6 +3755,9 @@ webHookMessage() {
         else
             log_info "No MDM determined - webhook call will fail"
         fi
+
+        installomatorVersionDetected="$(sed -nE 's/.*Start Installomator v\.\s*([^,]+).*/\1/p; s/.*Version:\s*([^[:space:]]+).*/\1/p' "$duplicate_installomatorLogFile" | head -n1)"
+        log_info "TESTING123: $installomatorVersionDetected"
         
         log_info "Sending Slack WebHook"
         jsonPayload='{
@@ -3778,7 +3781,7 @@ webHookMessage() {
                         },
                         {
                             "type": "mrkdwn",
-                            "text": ">*OS Version:*\n>'"$osVersion"'"
+                            "text": ">*Version:*\n>'"*AAP:* $scriptVersion *INSTR:* $installomatorVersionDetected *OS:* $osVersion"'"
                         },
                         {
                             "type": "mrkdwn",
