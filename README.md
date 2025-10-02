@@ -1,4 +1,4 @@
-## Acne Studios App Auto-Patch dev
+## Acne Studios App Auto-Patch
 
 ### Modifications Done
 
