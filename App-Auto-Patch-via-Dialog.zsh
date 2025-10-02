@@ -3857,6 +3857,9 @@ webHookMessage() {
             log_info "No MDM determined - webhook call will fail"
         fi
         
+        installomatorVersionDetected="$(sed -nE 's/.*Start Installomator v\.\s*([^,]+).*/\1/p; s/.*Version:\s*([^[:space:]]+).*/\1/p' "$duplicate_installomatorLogFile" | head -n1)"
+        log_info "TESTING123: $installomatorVersionDetected"
+
         log_info "Sending Teams WebHook"
         jsonPayload='{
             "type": "message",
@@ -3871,7 +3874,7 @@ webHookMessage() {
                                 "type": "TextBlock",
                                 "size": "Large",
                                 "weight": "Bolder",
-                                "text": "'${appTitle}': '${webhookStatus}'"
+                                "text": "'${webhookStatus}'"
                             },
                             {
                                 "type": "ColumnSet",
@@ -3894,13 +3897,13 @@ webHookMessage() {
                                             {
                                                 "type": "TextBlock",
                                                 "weight": "Bolder",
-                                                "text": "'${computerName}'",
+                                                "text": "'${serialNumber}'",
                                                 "wrap": true
                                             },
                                             {
                                                 "type": "TextBlock",
                                                 "spacing": "None",
-                                                "text": "'${serialNumber}'",
+                                                "text": "'${modelName}'",
                                                 "isSubtle": true,
                                                 "wrap": true
                                             }
@@ -3913,15 +3916,19 @@ webHookMessage() {
                                 "type": "FactSet",
                                 "facts": [
                                     {
-                                        "title": "User",
+                                        "title": "User:",
                                         "value": "'${currentUserAccountName}'"
                                     },
                                     {
-                                        "title": "Updates",
+                                        "title": "User:",
+                                        "value": "'AAP: ${scriptVersion} INSTR: ${installomatorVersionDetected} OS: ${osVersion}'"
+                                    },
+                                    {
+                                        "title": "Label(s):",
                                         "value": "'${formatted_result}'"
                                     },
                                     {
-                                        "title": "Errors",
+                                        "title": "Error(s):",
                                         "value": "'${formatted_error_result}'"
                                     }
                                 ]
