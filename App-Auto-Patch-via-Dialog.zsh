@@ -2461,7 +2461,7 @@ get_mdm(){
 		;;
 		*microsoft*)
 			log_info "MDM is Intune"
-			mdmName="Microsoft Intune"
+			mdmName="Intune"
 		;;
         *jumpcloud*)
             log_info "MDM is Jumpcloud"
@@ -3660,7 +3660,7 @@ check_and_echo_errors() {
     lastPosition=$(cat "$marker_file")
     log_info "Last position: $lastPosition"
     
-    result=$(grep -a 'ERROR\s\+:\s\+\S\+\s\+:\s\+ERROR:' "$duplicate_installomatorLogFile" | awk -F 'ERROR :' '{print $2}')
+    result="$(grep -aE 'ERROR[[:space:]]*:[[:space:]]*[^:]+[[:space:]]*:[[:space:]]*' "$duplicate_installomatorLogFile" | awk -F ' : ' '$2=="ERROR"{print $3 " : " $4; exit}')"
     #log_info "Install Error Result: $result"
     
     #Function to print with bullet points
@@ -3763,7 +3763,7 @@ webHookMessage() {
                     "type": "header",
                     "text": {
                         "type": "plain_text",
-                        "text": "'${appTitle}': '${webhookStatus}'",
+                        "text": "'${webhookStatus}'",
                     }
                 },
                 {
@@ -3774,15 +3774,15 @@ webHookMessage() {
                     "fields": [
                         {
                             "type": "mrkdwn",
-                            "text": ">*Serial Number and Computer Name:*\n>'"$serialNumber"' on '"$computerName"'"
+                            "text": ">*Serial Number:*\n>'"$serialNumber"'"
                         },
                                 {
                             "type": "mrkdwn",
-                            "text": ">*Computer Model:*\n>'"$modelName"'"
+                            "text": ">*Model:*\n>'"$modelName"'"
                         },
                         {
                             "type": "mrkdwn",
-                            "text": ">*Current User:*\n>'"$currentUserAccountName"'"
+                            "text": ">*User:*\n>'"$currentUserAccountName"'"
                         },
                         {
                             "type": "mrkdwn",
@@ -3790,11 +3790,7 @@ webHookMessage() {
                         },
                         {
                             "type": "mrkdwn",
-                            "text": ">*Errors:*\n>'"$formatted_error_result"'"
-                        },
-                                {
-                            "type": "mrkdwn",
-                            "text": ">*Computer Record:*\n>'"$mdmComputerURL"'"
+                            "text": ">*Error(s):*\n>'"$formatted_error_result"'"
                         }
                     ]
                 },
