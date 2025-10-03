@@ -23,8 +23,8 @@
 # Script Version and Variables
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-scriptVersion="3.3.0-acne3"
-scriptDate="2025/09/29"
+scriptVersion="3.3.0-acne5"
+scriptDate="2025/10/03"
 scriptFunctionalName="App Auto-Patch"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -3624,42 +3624,65 @@ workflow_do_Installations() {
     
 }
 
+update_duplicate_installomator_log_file() {
+    if [[ -z "$duplicate_log_dir" ]]; then
+        duplicate_log_dir=$(mktemp -d /var/tmp/InstallomatorErrors.XXXXXX)
+        chmod 655 "$duplicate_log_dir"
+        log_info "Initializing duplicate log directory: $duplicate_log_dir"
+    elif [[ ! -d "$duplicate_log_dir" ]]; then
+        mkdir -p "$duplicate_log_dir"
+        log_info "Creating duplicate log directory: $duplicate_log_dir"
+    fi
+
+    if [[ -z "$marker_file" ]]; then
+        marker_file="/var/tmp/Installomator_marker.txt"
+    fi
+    if [[ ! -f "$marker_file" ]]; then
+        touch "$marker_file"
+        log_info "Marker file not found, creating temp marker file"
+    fi
+
+    if [[ -z "$installomatorLogFile" ]]; then
+        installomatorLogFile="/var/log/Installomator.log"
+    fi
+    if [[ ! -f "$installomatorLogFile" ]]; then
+        touch "$installomatorLogFile"
+        chmod 755 "$installomatorLogFile"
+        log_info "Installomator log file not found. Creating now"
+    fi
+
+    local last_snapshot_position
+    last_snapshot_position=$(cat "$marker_file" 2> /dev/null)
+    [[ -z "$last_snapshot_position" ]] && last_snapshot_position=0
+
+    local log_length
+    log_length=$(wc -l "$installomatorLogFile" | awk '{print $1}')
+    if (( last_snapshot_position > log_length )); then
+        log_info "Marker position exceeds log length. Resetting to beginning."
+        last_snapshot_position=0
+    fi
+
+    local snapshot_timestamp
+    snapshot_timestamp=$(date +%Y%m%d%H%M%S)
+
+    duplicate_installomatorLogFile="${duplicate_log_dir}/Installomator_error_${snapshot_timestamp}.log"
+    log_info "Duplicate Log File location: $duplicate_installomatorLogFile"
+    tail -n +$((last_snapshot_position + 1)) "$installomatorLogFile" > "$duplicate_installomatorLogFile"
+    log_info "Tailing new entries from log file to duplicate log file"
+
+    wc -l "$installomatorLogFile" | awk '{print $1}' > "$marker_file"
+    lastPosition=$(cat "$marker_file" 2> /dev/null)
+    log_info "Last position: $lastPosition"
+}
+
 check_and_echo_errors() {
     
     # Create a timestamp for the current run
     timestamp=$(date +%Y%m%d%H%M%S)
     log_info "Current time stamp: $timestamp"
-    
-    # Create a directory for duplicate log files if it doesn't exist
-    if [ ! -d "$duplicate_log_dir" ]; then
-        mkdir -p "$duplicate_log_dir"
-        log_info "Creating duplicate log file"
-    else
-        log_info "Duplicate log directory exists, continuing"
-    fi
-    
-    # Specify the duplicate log file with a timestamp
-    duplicate_installomatorLogFile="$duplicate_log_dir/Installomator_error_$timestamp.log"
-    log_info "Duplicate Log File location: $duplicate_installomatorLogFile"
-    
-    # Find the last position marker or start from the beginning if not found
-    if [ -f "$marker_file" ]; then
-        lastPosition=$(cat "$marker_file")
-    else 
-        lastPosition=0
-    fi
-    
-    # Copy new entries from Installomator.log to the duplicate log file
-    tail -n +$((lastPosition + 1)) "$installomatorLogFile" > "$duplicate_installomatorLogFile"
-    log_info "tailing new entries from log file to duplicate log file" 
-    
-    # Update the marker file with the new position
-    wc -l "$installomatorLogFile" | awk '{print $1}' > "$marker_file"
-    log_info "Updating marker file"
-    
-    lastPosition=$(cat "$marker_file")
-    log_info "Last position: $lastPosition"
-    
+
+    update_duplicate_installomator_log_file
+
     result="$(grep -aE 'ERROR[[:space:]]*:[[:space:]]*[^:]+[[:space:]]*:[[:space:]]*' "$duplicate_installomatorLogFile" | awk -F ' : ' '$2=="ERROR"{print $3 " : " $4; exit}')"
     #log_info "Install Error Result: $result"
     
@@ -3705,19 +3728,19 @@ appsUpToDate(){
     # Extract the App up to date info from the AAP log
     if [[ $errorsCount -le 0 ]] && [[ ! -n $appsUpToDate ]]; then
         log_info "SUCCESS: Applications updates were installed with no errors"
-        webhookStatus="Success: Apps updated (S/N ${serialNumber})"
+        webhookStatus="✅ Success: App(s) updated"
         formatted_result=$(echo "$queuedLabelsArray")
         formatted_error_result="None"
         errorCount="0"
     elif
         [[ $errorsCount -gt 0 ]] && [[ ! -n $appsUpToDate ]]; then
             log_info "FAILURES DETECTED: Applications updates were installed with some errors"
-            webhookStatus="Error: Update(s) failed (S/N ${serialNumber})"
+            webhookStatus="❌ Error: Update(s) failed"
             formatted_result=$(echo "$queuedLabelsArray")
             check_and_echo_errors
         else
             log_info "SUCCESS: Applications were all up to date, nothing to install"
-            webhookStatus="Success: Apps already up-to-date (S/N ${serialNumber})"
+            webhookStatus="✅ Success: App(s) already up-to-date"
             formatted_result="None"
             formatted_error_result="None"
             errorCount="0"
@@ -3726,7 +3749,18 @@ appsUpToDate(){
 }
 
 webHookMessage() {
-    
+
+    if [[ -n "$webhook_url_slack_option" || -n "$webhook_url_teams_option" ]]; then
+        if [[ -z "$duplicate_installomatorLogFile" ]] || [[ ! -s "$duplicate_installomatorLogFile" ]]; then
+            update_duplicate_installomator_log_file
+        fi
+        installomatorVersionDetected=$(sed -nE 's/.*Start Installomator v\.\s*([^,]+).*/\1/p; s/.*Version:\s*([^[:space:]]+).*/\1/p' "$duplicate_installomatorLogFile" | head -n1)
+        if [[ -z "$installomatorVersionDetected" ]]; then
+            installomatorVersionDetected="${installomatorVersion:-Unknown}"
+        fi
+        log_info "Installomator version detected for webhook: $installomatorVersionDetected"
+    fi
+
     if [[ $webhook_url_slack_option == "" ]]; then
         log_info "No slack URL configured"
     else
@@ -3755,7 +3789,7 @@ webHookMessage() {
         else
             log_info "No MDM determined - webhook call will fail"
         fi
-        
+
         log_info "Sending Slack WebHook"
         jsonPayload='{
             "blocks": [
@@ -3774,9 +3808,13 @@ webHookMessage() {
                     "fields": [
                         {
                             "type": "mrkdwn",
-                            "text": ">*Serial Number:*\n>'"$serialNumber"'"
+                            "text": ">*Hostname:*\n>'"$computerName"'"
                         },
-                                {
+                        {
+                            "type": "mrkdwn",
+                            "text": ">*Version:*\n>'"*AAP:* $scriptVersion *INSTR:*$installomatorVersionDetected *OS:* $osVersion"'"
+                        },
+                        {
                             "type": "mrkdwn",
                             "text": ">*Model:*\n>'"$modelName"'"
                         },
@@ -3786,7 +3824,7 @@ webHookMessage() {
                         },
                         {
                             "type": "mrkdwn",
-                            "text": ">*Updates:*\n>'"$formatted_result"'"
+                            "text": ">*Label(s):*\n>'"$formatted_result"'"
                         },
                         {
                             "type": "mrkdwn",
@@ -3864,7 +3902,7 @@ webHookMessage() {
                                 "type": "TextBlock",
                                 "size": "Large",
                                 "weight": "Bolder",
-                                "text": "'${appTitle}': '${webhookStatus}'"
+                                "text": "'${webhookStatus}'"
                             },
                             {
                                 "type": "ColumnSet",
@@ -3886,14 +3924,13 @@ webHookMessage() {
                                         "items": [
                                             {
                                                 "type": "TextBlock",
-                                                "weight": "Bolder",
-                                                "text": "'${computerName}'",
+                                                "text": "**'${serialNumber}'** (*'${modelName}')*",
                                                 "wrap": true
                                             },
                                             {
                                                 "type": "TextBlock",
                                                 "spacing": "None",
-                                                "text": "'${serialNumber}'",
+                                                "text": "'${currentUserAccountName}'",
                                                 "isSubtle": true,
                                                 "wrap": true
                                             }
@@ -3903,21 +3940,68 @@ webHookMessage() {
                                 ]
                             },
                             {
-                                "type": "FactSet",
-                                "facts": [
-                                    {
-                                        "title": "User",
-                                        "value": "'${currentUserAccountName}'"
-                                    },
-                                    {
-                                        "title": "Updates",
-                                        "value": "'${formatted_result}'"
-                                    },
-                                    {
-                                        "title": "Errors",
-                                        "value": "'${formatted_error_result}'"
-                                    }
+                            "type": "ColumnSet",
+                            "spacing": "Small",
+                            "bleed": true,
+                            "columns": [
+                                {
+                                "type": "Column",
+                                "width": "auto",
+                                "items": [
+                                    { "type": "TextBlock", "text": "AAP:", "weight": "Bolder", "wrap": false, "spacing": "None" }
                                 ]
+                                },
+                                {
+                                "type": "Column",
+                                "width": "auto",
+                                "items": [
+                                    { "type": "TextBlock", "text": "'${scriptVersion}'", "fontType": "Monospace", "wrap": false, "maxLines": 1, "spacing": "None" }
+                                ]
+                                },
+                                {
+                                "type": "Column",
+                                "width": "auto",
+                                "items": [
+                                    { "type": "TextBlock", "text": "INSTR:", "weight": "Bolder", "wrap": false, "spacing": "None" }
+                                ]
+                                },
+                                {
+                                "type": "Column",
+                                "width": "auto",
+                                "items": [
+                                    { "type": "TextBlock", "text": "'${installomatorVersionDetected:-$appVersion}'", "fontType": "Monospace", "wrap": false, "maxLines": 1, "spacing": "None" }
+                                ]
+                                },
+                                {
+                                "type": "Column",
+                                "width": "auto",
+                                "items": [
+                                    { "type": "TextBlock", "text": "OS:", "weight": "Bolder", "wrap": false, "spacing": "None" }
+                                ]
+                                },
+                                {
+                                "type": "Column",
+                                "width": "auto",
+                                "items": [
+                                    { "type": "TextBlock", "text": "'${osVersion}'", "fontType": "Monospace", "wrap": false, "maxLines": 1, "spacing": "None" }
+                                ]
+                                }
+                            ]
+                            },
+                            {
+                            "type": "FactSet",
+                            "facts": [
+                                {
+                                "title": "Label(s):",
+                                "value": "'${formatted_result}'",
+                                "wrap": true
+                                },
+                                {
+                                "title": "Error(s):",
+                                "value": "'${formatted_error_result}'",
+                                "wrap": true
+                                }
+                            ]
                             }
                         ],
                         "actions": [
