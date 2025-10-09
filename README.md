@@ -8,7 +8,7 @@
   - Webhooks now parse Installomator version before Slack/Teams requests (line 3753)
 
 - **Logo Modificatons**  
-  - Modified overlayLogo to be Acne Studios Face Logo (line 2010)
+  - App Auto-Patch now always displays the Intune logo in Dialog (line 2010)
 
 - **Text Modifications**
   - Removed email contact info (line 2025)

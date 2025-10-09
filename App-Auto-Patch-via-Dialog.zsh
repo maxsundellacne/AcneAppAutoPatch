@@ -23,8 +23,8 @@
 # Script Version and Variables
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-scriptVersion="3.3.0-acne5"
-scriptDate="2025/10/03"
+scriptVersion="3.3.0-acne7"
+scriptDate="2025/10/08"
 scriptFunctionalName="App Auto-Patch"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -1999,10 +1999,10 @@ workflow_startup() {
         icon="SF=desktopcomputer.and.arrow.down,weight=regular,colour1=gray,colour2=red"
     fi
 
-    # MODIFIED to always use Acne Studios branding icon if available
+    # MODIFIED to always use Intune icon if available
     if [[ "$useOverlayIcon" == "TRUE" ]]; then
-        # Always use Acne Studios branding icon
-        overlayicon="/Library/Management/AcneStudiosBranding/AcneLogoSquircle.icns"
+        # Always use Intune icon
+        overlayicon="/Applications/Company Portal.app/Contents/Resources/AppIcon.icns"
     else
         overlayicon=""
     fi
