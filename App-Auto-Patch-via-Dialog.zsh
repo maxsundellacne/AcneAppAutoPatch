@@ -2233,7 +2233,7 @@ install_dialog() {
         log_install "swiftDialog version ${dialogVersion} installed; proceeding..."
     else
         # Display a so-called "simple" dialog if Team ID fails to validate
-        osascript -e 'display dialog "Please advise your Support Representative of the following error:\r\r• Dialog Team ID verification failed\r\r" with title "'"${scriptFunctionalName}"': Error" buttons {"Close"} with icon caution'
+#        osascript -e 'display dialog "Please advise your Support Representative of the following error:\r\r• Dialog Team ID verification failed\r\r" with title "'"${scriptFunctionalName}"': Error" buttons {"Close"} with icon caution'
         exitCode="1"
         quitScript
     fi
